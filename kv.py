@@ -6,6 +6,8 @@ import json
 import sys
 import os
 
+import Op, Operation from operation
+
 # if len(sys.argv) < 3:
 # 	print("Usage: kv.py <file.json> key");
 # 	sys.exit(1)
@@ -43,10 +45,30 @@ printJSON = False
 operations = []
 
 def main():
+    parseArgs()
     pass
 
 # Parse Arguments
 def parseArgs():
+    getKeyNext = False
+    getValueNext = False
+    for a, i in sys.args:
+        if i == 0:
+            continue
+        elif i == 1:
+            jsonFileName = a
+            getKeyNext = True
+        elif i >= 2:
+            if getKeyNext:
+                # Special Case: Optionally have a flag or the filename.json
+                if i == 1 and a == "-v":
+                    getKeyNext = True
+                elif i > 1:
+                    jsonFileName = a
+                getKeyNext = False
+            elif getValueNext:
+                value = a
+                getValueNext = False
     pass
 
 # Load or Create the JSON File
