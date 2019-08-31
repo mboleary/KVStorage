@@ -41,14 +41,36 @@ jsonContents = {}
 jsonFileName = ""
 printJSON = False
 operations = []
+hasWriteOp = False # True if a write operation is parsed. Used to determine whether to create a file
 
 def main():
-    parseArgs()
+    global jsonFileName
+    global operations
+    global saveChanges
 
-    pass
+    parseArgs()
+    # Load the file (If file doesn't exist, create only if there is a write operation)
+    if os.path.isfile(jsonFileName) or hasWriteOp:
+        loadOrCreateFile()
+        print("File", jsonFileName, "loaded")
+    else:
+        # Whatever operation was going to be performed here would result in an empty string, so just exit.
+        print("File Not Loaded")
+        sys.exit()
+
+    doOps()
+
+    if saveChanges:
+        saveFile()
+        print("Changes Saved to File")
 
 # Parse Arguments
 def parseArgs():
+    global jsonFileName
+    global hasWriteOp
+    global operations
+    global saveChanges
+
     key = ""
     value = ""
     currFlag = ""
@@ -57,26 +79,28 @@ def parseArgs():
     procArg = False # True if the atom needs to be converted into an operation
     procAfterKey = False # True if processing should occur after reading the key
     procAfterValue = False # True if processing should occur after reading the value
+    
     for i, a in enumerate(sys.argv):
         if i == 0:
             # Skip the Program Name
+            print("ProgName:", a)
             continue
         elif i == 1:
-            # This will be a command
+            # This will be the JSON Filename
+            print("Filename:", a)
             jsonFileName = a
-            getKeyNext = True # Allow for View Shortcut
         elif i >= 2:
             if getKeyNext:
                 # Special Case: Optionally have a flag or the filename.json
-                if i == 1 and a == "-v":
-                    getKeyNext = True
-                elif i >= 1:
-                    key = a
-                    getKeyNext = False
-                    if procAfterKey:
-                        procAfterKey = False
-                        procArg = True
+                print("Getting Key:", a)
+                key = a
+                getKeyNext = False
+                if procAfterKey:
+                    procAfterKey = False
+                    procArg = True
             elif getValueNext:
+                
+                print("Geting Value:", a)
                 value = a
                 getValueNext = False
                 if procAfterValue:
@@ -84,6 +108,8 @@ def parseArgs():
                     procArg = True
             else:
                 # Parse a Command Flag
+                print("Parsing Flag:", a)
+                
                 currFlag = a
 
                 # Always get only Key: -v -d -s
@@ -105,24 +131,63 @@ def parseArgs():
                     getKeyNext = True
                     getValueNext = True
                     procAfterValue = True
+                # Check for shortcut: View Name after JSON Filename
+                elif i == 2:
+                    print("Special Case: View Shortcut")
+                    key = a
+                    currFlag = "-v"
+                    procArg = True
         # Process the argument, but only when it's ready
         if procArg:
             procArg = False
             print("Parsed Operation", currFlag, key, value)
             operations.append(genOperation(currFlag, key, value))
-    pass
+            if currFlag == "-w":
+                hasWriteOp = True
+                saveChanges = True
+            elif currFlag == "-d":
+                saveChanges = True
+    if len(operations) == 0:
+        print("Help should be printed here!")
+        sys.exit()
 
 # Load or Create the JSON File
 def loadOrCreateFile():
-    pass
+    global jsonContents
+    global jsonFileName
+    try:
+        if (os.path.isfile(jsonFileName)):
+            f = open(jsonFileName)
+            jsonContents = json.loads(f.read())
+            f.close()
+        else:
+            jsonContents = {}
+    except IOError as e:
+        print("There was a problem opening the file.", e, file=sys.stderr)
+        sys.exit()
 
 # Save the Updated JSON
 def saveFile():
-    pass
+    global jsonFileName
+    global jsonContents
+
+    try:
+        f = open(jsonFileName, 'w')
+        f.write(json.dumps(jsonContents))
+        f.close()
+    except IOError as e:
+        print("There was a problem opening the file.", e, file=sys.stderr)
+        sys.exit()
 
 # Performs all Operations
 def doOps():
-    pass
+    global operations
+    global jsonContents
+    while len(operations) > 0:
+        op = operations.pop(0)
+        op.do(jsonContents)
+        print("Performed Operation", op.op)
+        print("JSON:", jsonContents)
 
 if __name__ == "__main__":
     main()

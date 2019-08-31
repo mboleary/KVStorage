@@ -4,6 +4,8 @@
 
 from enum import Enum
 
+import sys
+
 # We only have specific operations to perform
 class Op(Enum):
     VIEW = 1
@@ -25,7 +27,7 @@ def genOperation(arg, key, val):
     elif arg == "-k":
         return Operation(Op.VIEW_KEYS, key, "")
     else:
-        print("Invalid Operation", arg, file=sys.stderr)
+        print("Invalid Operation:", arg, file=sys.stderr)
 
 class Operation:
     op = Op.NOP
