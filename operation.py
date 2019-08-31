@@ -5,6 +5,7 @@
 from enum import Enum
 
 import sys
+import fnmatch
 
 # We only have specific operations to perform
 class Op(Enum):
@@ -52,5 +53,12 @@ class Operation:
         elif self.op == Op.DELETE:
             if self.key in j:
                 del j[self.key]
+        elif self.op == Op.VIEW_KEYS:
+            for key in j.keys():
+                print(key)
+        elif self.op == Op.SEARCH_KEYS:
+            for key in j.keys():
+                if fnmatch.fnmatch(key, self.key):
+                    print(key)
         else:
             print("Did Nothing!")
