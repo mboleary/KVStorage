@@ -52,17 +52,17 @@ def main():
     # Load the file (If file doesn't exist, create only if there is a write operation)
     if os.path.isfile(jsonFileName) or hasWriteOp:
         loadOrCreateFile()
-        print("File", jsonFileName, "loaded")
+        # if print("File", jsonFileName, "loaded")
     else:
         # Whatever operation was going to be performed here would result in an empty string, so just exit.
-        print("File Not Loaded")
+        # print("File Not Loaded")
         sys.exit()
 
     doOps()
 
     if saveChanges:
         saveFile()
-        print("Changes Saved to File")
+        # print("Changes Saved to File")
 
 # Parse Arguments
 def parseArgs():
@@ -83,16 +83,16 @@ def parseArgs():
     for i, a in enumerate(sys.argv):
         if i == 0:
             # Skip the Program Name
-            print("ProgName:", a)
+            # print("ProgName:", a)
             continue
         elif i == 1:
             # This will be the JSON Filename
-            print("Filename:", a)
+            # print("Filename:", a)
             jsonFileName = a
         elif i >= 2:
             if getKeyNext:
                 # Special Case: Optionally have a flag or the filename.json
-                print("Getting Key:", a)
+                # print("Getting Key:", a)
                 key = a
                 getKeyNext = False
                 if procAfterKey:
@@ -100,7 +100,7 @@ def parseArgs():
                     procArg = True
             elif getValueNext:
                 
-                print("Geting Value:", a)
+                # print("Geting Value:", a)
                 value = a
                 getValueNext = False
                 if procAfterValue:
@@ -108,7 +108,7 @@ def parseArgs():
                     procArg = True
             else:
                 # Parse a Command Flag
-                print("Parsing Flag:", a)
+                # print("Parsing Flag:", a)
                 
                 currFlag = a
 
@@ -133,14 +133,14 @@ def parseArgs():
                     procAfterValue = True
                 # Check for shortcut: View Name after JSON Filename
                 elif i == 2:
-                    print("Special Case: View Shortcut")
+                    # print("Special Case: View Shortcut")
                     key = a
                     currFlag = "-v"
                     procArg = True
         # Process the argument, but only when it's ready
         if procArg:
             procArg = False
-            print("Parsed Operation", currFlag, key, value)
+            # print("Parsed Operation", currFlag, key, value)
             operations.append(genOperation(currFlag, key, value))
             if currFlag == "-w":
                 hasWriteOp = True
@@ -186,8 +186,8 @@ def doOps():
     while len(operations) > 0:
         op = operations.pop(0)
         op.do(jsonContents)
-        print("Performed Operation", op.op)
-        print("JSON:", jsonContents)
+        # print("Performed Operation", op.op)
+        # print("JSON:", jsonContents)
 
 if __name__ == "__main__":
     main()
